@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+here<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -261,7 +261,7 @@
         }
 
         /* Styling for the ad container to ensure it's centered and has some margin */
-        #adsterra-ad-container {
+        #adsterra-banner-container {
             margin-top: 40px;
             margin-bottom: 20px;
             text-align: center;
@@ -344,7 +344,6 @@
             "Surprise Gift Box"
         ];
 
-        // Angles for each segment (360 / 12 = 30 degrees per segment)
         const segmentAngles = [
             0,   // Prize 1
             30,  // Prize 2
@@ -362,6 +361,35 @@
 
         let isSpinning = false;
         let rotation = 0;
+        let hasSpunOnce = false; // Flag to track if the spin button has been clicked
+
+        // Function to load and execute the popunder ad script
+        function loadPopunderAd() {
+            // Check if the script has already been loaded to prevent multiple popunders on single clicks
+            if (document.body.dataset.popunderLoaded) {
+                return;
+            }
+
+            const popunderScript1 = document.createElement('script');
+            popunderScript1.type = 'text/javascript';
+            popunderScript1.textContent = `
+                atOptions = {
+                    'key' : '29d07e379675b265af27324a56e487da', // Your Popunder Adsterra key
+                    'format' : 'iframe', // Or 'popunder' if your adsterra code specifies it differently
+                    'height' : 250, // These are placeholder values, Adsterra popunder scripts usually don't use height/width directly here.
+                    'width' : 300,
+                    'params' : {}
+                };
+            `;
+            document.body.appendChild(popunderScript1);
+
+            const popunderScript2 = document.createElement('script');
+            popunderScript2.type = 'text/javascript';
+            popunderScript2.src = '//pl27777232.revenuecpmgate.com/29/d0/7e/29d07e379675b265af27324a56e487da.js';
+            document.body.appendChild(popunderScript2);
+
+            document.body.dataset.popunderLoaded = 'true'; // Mark as loaded
+        }
 
         spinButton.addEventListener('click', () => {
             if (isSpinning) return;
@@ -371,34 +399,18 @@
             winningMessage.classList.remove('show');
             claimForm.classList.remove('show');
             finalMessage.classList.remove('show');
+            hasSpunOnce = true; // Set the flag after the first spin
 
-            // Select a random prize (excluding "Better Luck Next Time")
             let winnablePrizes = prizes.filter(prize => prize !== "Better Luck Next Time");
             const randomIndex = Math.floor(Math.random() * winnablePrizes.length);
             const winningPrize = winnablePrizes[randomIndex];
 
-            // Find the index of the winning prize in the original prizes array
             const winningPrizeIndex = prizes.indexOf(winningPrize);
 
-            // Calculate the target rotation.
-            // Each segment is 30 degrees. The wheel image likely starts with a segment at the top.
-            // We want the *center* of the winning segment to align with the arrow.
-            // A full circle is 360 degrees.
-            // We need to determine the angle that puts the chosen prize at the top (0 degrees).
-            // Let's assume the spin.png image has its first prize segment (index 0) starting at 0 degrees (top).
-            // If the wheel has 12 segments, each is 30 degrees.
-            // The center of segment 0 is at 15 degrees.
-            // The center of segment 1 is at 45 degrees, and so on.
-            // The winning segment's center should align with the arrow.
-            // To bring this to the top (0 degrees), we need to rotate by an amount such that its center is at 0 degrees.
-            // The angle for the center of segment `winningPrizeIndex` is `winningPrizeIndex * 30 + 15`.
-            // To bring this to the top (0 degrees), we need to rotate by `360 - (winningPrizeIndex * 30 + 15)`.
-            // We also add multiple full rotations to make it spin dramatically.
-            const baseAngleForPrize = (winningPrizeIndex * 30) + 15; // Center of the winning segment
+            const baseAngleForPrize = (winningPrizeIndex * 30) + 15;
             const degreesToRotate = 360 - baseAngleForPrize;
 
-            // Add several full rotations to make it spin more
-            const numberOfFullRotations = 5; // Spin 5 extra times
+            const numberOfFullRotations = 5;
             const targetRotation = (numberOfFullRotations * 360) + degreesToRotate;
 
             spinWheel.style.transform = `rotate(${targetRotation}deg)`;
@@ -406,8 +418,8 @@
             spinWheel.addEventListener('transitionend', () => {
                 isSpinning = false;
                 spinButton.disabled = false;
-                rotation = targetRotation % 360; // Keep track of the actual rotation for next spin
-                spinWheel.style.transform = `rotate(${rotation}deg)`; // Reset to actual final position without extra full spins for smooth next spin
+                rotation = targetRotation % 360;
+                spinWheel.style.transform = `rotate(${rotation}deg)`;
 
                 prizeWon.textContent = `Congratulations! You won ${winningPrize}!`;
                 winningMessage.classList.add('show');
@@ -424,17 +436,14 @@
             const whatsappUrl = `https://wa.me/?text=${shareText}%0A${window.location.href}`;
             window.open(whatsappUrl, '_blank');
 
-            // Simulate return after sharing (e.g., after a delay)
             setTimeout(() => {
                 winningMessage.classList.remove('show');
                 claimForm.classList.add('show');
-            }, 3000); // Simulate a 3-second delay for sharing
+            }, 3000);
         });
 
         claimForm.addEventListener('submit', (event) => {
             event.preventDefault();
-            // In a real app, you would send this data to a server.
-            // For this example, we'll just display the final message.
             const name = document.getElementById('name').value;
             const mobile = document.getElementById('mobile').value;
 
@@ -443,14 +452,15 @@
             claimForm.classList.remove('show');
             finalMessage.classList.add('show');
 
-            // You might want to clear the form fields here
             document.getElementById('name').value = '';
             document.getElementById('mobile').value = '';
         });
+
+
     </script>
 
-    <!-- Adsterra Ad Code -->
-    <div id="adsterra-ad-container" style="margin-top: 40px; margin-bottom: 20px; text-align: center; max-width: 100%;">
+    <!-- Adsterra Banner Ad Code (Provided by user) -->
+    <div id="adsterra-banner-container" style="margin-top: 40px; margin-bottom: 20px; text-align: center; max-width: 100%;">
         <script type="text/javascript">
             atOptions = {
                 'key' : '018720ed5877cbe24f0669decba76cf7',
@@ -461,20 +471,12 @@
             };
         </script>
         <script type="text/javascript" src="//www.highperformanceformat.com/018720ed5877cbe24f0669decba76cf7/invoke.js"></script>
-    <div id="adsterra-ad-container" style="margin-top: 40px; margin-bottom: 20px; text-align: center; max-width: 100%;">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : '018720ed5877cbe24f0669decba76cf7',
-                'format' : 'iframe',
-                'height' : 60,
-                'width' : 468,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/018720ed5877cbe24f0669decba76cf7/invoke.js"></script>
-
     </div>
-    <!-- End Adsterra Ad Code -->
+    <!-- End Adsterra Banner Ad Code -->
+
+    <!-- Adsterra Social Bar Ad Code (Provided by user) -->
+    <script type='text/javascript' src='//pl27777235.revenuecpmgate.com/bd/88/52/bd8852006b2dee45fc9ff6e3f157e6ad.js'></script>
+    <!-- End Adsterra Social Bar Ad Code -->
 
 </body>
 </html>
